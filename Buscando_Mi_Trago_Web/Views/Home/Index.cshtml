@@ -1,0 +1,208 @@
+﻿@using System.Web.Optimization
+
+@{
+    ViewBag.Title = "Buscando mi Trago";
+}
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table tbody td {
+        width: 100px;
+        text-align: center;
+    }
+
+    .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody td {
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    .btnName {
+        background-color: #F9502D;
+        color: white;
+        border: 3px;
+        padding: 8px 15px;
+        font-size: 16px;
+        border-radius: 9px;
+        text-align: center;
+    }
+
+    .btnIngredient {
+        background-color: #F69A19;
+        color: white;
+        border: 3px;
+        padding: 8px 15px;
+        font-size: 16px;
+        border-radius: 9px;
+        text-align: center;
+    }
+
+    .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table tbody td,
+    .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table thead th {
+        text-align: center;
+    }
+
+        /* Opcional: Centrar el contenido de las celdas (puede incluir imágenes y botones) */
+        .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table tbody td img,
+        .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table tbody td button {
+            display: block;
+            margin: 0 auto;
+        }
+
+    body {
+        background-color: #b39e9e;
+    }
+</style>
+
+
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <br />
+    <div class="row m-b-lg">
+        <div class="col-lg-12">
+            <div class="text-center">
+                <img src="~/images/logo.png" />
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="text-center loginscreen ">
+                <br />
+
+                <h2 class="text-center">Welcome to Buscando mi trago</h2>
+
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="text-center">
+            <div class="form-group">
+                <input type="text" id="searchDrink" class="col-lg-3" style=" margin-bottom: 10px;" placeholder="Search:">
+            </div>
+            <button id="searchByName" class="btnName" onclick="Search('1', document.getElementById('searchDrink').value)">Search by name</button>
+            <button id="searchByIngredient" class="btnIngredient" onclick="Search('2', document.getElementById('searchDrink').value)">Search by ingredient</button>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="ibox ">
+        <div class="ibox-content">
+            <table data-page-size="10" id="lstDrink" class="table table-striped table-condensed display responsive nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>instructions</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/responsive.dataTables.min.css" />
+    <link rel="stylesheet" href="~/css/sweetalert.css" />
+}
+
+@section Scripts {
+    <script src="~/lib/datatables/jquery.datatables.min.js"></script>
+    <script src="~/lib/datatables/dataTables.bootstrap.min.js"></script>
+    <script src="~/lib/datatables/dataTables.responsive.min.js"></script>
+    <script src="~/js/sweetalert.min.js"></script>
+
+
+    <script>
+        var table;
+        var URL;
+        var drinks;
+        function loadTableDrink() {
+            table = $('#lstDrink').DataTable({
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        url: URL,
+                        method: "GET",
+                        success: function (result, textStatus, jQxhr) {
+                            drinks = result.drinks;
+                            callback({
+                                data: drinks,
+                            });
+                        },
+                        error: function (jqXhr, textStatus, errorThrown) {
+                            console.error("Error al realizar la solicitud:", errorThrown);
+                        }
+                    });
+                },
+                columnDefs: [
+                    { width: '150px', targets: '_all' } 
+                ],
+                columns: [
+                    {
+                        "data": "strDrinkThumb",
+                        "responsivePriority": 1,
+                        "render": function (data, type, row) {
+                            return `<img src="${data}" alt="Drink Thumbnail" style="width: 200px; height: 200px;">`;
+                        }
+                    },
+                    { "data": "strDrink", "responsivePriority": 1 },
+                    {
+                        "data": "strInstructions",
+                        "responsivePriority": 1,
+                        "render": function (data, type, row) {
+                            return `<div style=" word-wrap: break-word; white-space: normal;">${data}</div>`;
+                        }
+                    },
+                    {
+                        "data": null,
+                        "responsivePriority": 1,
+                        "render": function (data, type, row) {
+                            return `<button class="btnName" onclick="addDrink('${row.idDrink}')">Add</button>`;
+                        }
+                    }
+                ],
+                responsive: true,
+                paging: false,
+                order: false,
+                searching: false,
+                ordering: false,
+                info: "",
+            });
+        }
+
+        function Search(Action, searchDrink) {
+            if (!table) {
+                loadTableDrink();
+            }
+            if (Action === '1') {
+                URL = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=' + searchDrink;
+            } else {
+                URL = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=' + searchDrink;
+            }
+            $('#lstDrink').DataTable().ajax.reload();
+        }
+
+        function addDrink(DrinkId) {
+            const drink = drinks.find(d => d.idDrink === DrinkId);
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CreateDrink", "API")',
+                data: JSON.stringify(drink),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                        swal({
+                            title: "Success",
+                            text: "Drink added to your list",
+                            icon: "success",
+                            button: "OK",
+                        });
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", status, error);
+                }
+            });
+        }
+
+    </script>
+}

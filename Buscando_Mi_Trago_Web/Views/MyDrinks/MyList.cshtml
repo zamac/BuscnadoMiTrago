@@ -1,0 +1,76 @@
+﻿<div class="wrapper wrapper-content animated fadeInRight">
+    <br />
+    <div class="row m-b-lg">
+        <div class="col-lg-12">
+            <div class="text-center">
+                <img src="~/images/logo.png" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="ibox ">
+        <div class="ibox-content">
+            <table data-page-size="10" id="lstMyDrinks" class="table  display responsive nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ingredients</th>
+                        <th>instructions</th>
+@*                         <th>Action</th> *@
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/responsive.dataTables.min.css" />
+    <link rel="stylesheet" href="~/css/sweetalert.css" />
+}
+
+@section Scripts {
+    <script src="~/lib/datatables/jquery.datatables.min.js"></script>
+    <script src="~/lib/datatables/dataTables.bootstrap.min.js"></script>
+    <script src="~/lib/datatables/dataTables.responsive.min.js"></script>
+    <script src="~/js/sweetalert.min.js"></script>
+
+    <script>
+        var drinks;
+        $(document).ready(function () {
+            loadTableDrink();
+        });
+
+        function loadTableDrink() {
+            table = $('#lstMyDrinks').DataTable({
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        url: '@Url.Action("GetMydrinks", "API")',
+                        method: "GET",
+                        success: function (result, textStatus, jQxhr) {
+                            drinks = result;
+                            callback({
+                                data: drinks,
+                            });
+                        },
+                        error: function (jqXhr, textStatus, errorThrown) {
+                            console.error("Error al realizar la solicitud:", errorThrown);
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "strDrink" },
+                    { "data": "ingredientsWithMeasures" },
+                    { "data": "strInstructions" },
+                ],
+                responsive: true,
+                paging: true,
+                order: false,
+                searching: true,
+                ordering: false ,
+            });
+        }
+    </script>
+}
