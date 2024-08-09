@@ -43,15 +43,30 @@
         text-align: center;
     }
 
-        /* Opcional: Centrar el contenido de las celdas (puede incluir imágenes y botones) */
         .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table tbody td img,
         .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table tbody td button {
             display: block;
             margin: 0 auto;
         }
 
-    body {
-        background-color: #b39e9e;
+    .vertical-align {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+
+    .borderSearch {
+        border-radius: 5px;
+    }
+
+    .text-color {
+        color: #d30f0d;
+    }
+
+    #searchDrink {
+        font-family: sans-serif;
+        padding-left: 9px;
+        padding-right: 9px;
     }
 </style>
 
@@ -69,7 +84,7 @@
             <div class="text-center loginscreen ">
                 <br />
 
-                <h2 class="text-center">Welcome to Buscando mi trago</h2>
+                <h2 class="text-center">Welcome to <span class="text-color">Buscando mi trago</span></h2>
 
             </div>
         </div>
@@ -77,7 +92,7 @@
     <div class="container">
         <div class="text-center">
             <div class="form-group">
-                <input type="text" id="searchDrink" class="col-lg-3" style=" margin-bottom: 10px;" placeholder="Search:">
+                <input type="text" id="searchDrink" class="col-lg-3 borderSearch" style=" margin-bottom: 10px;" placeholder="Search:">
             </div>
             <button id="searchByName" class="btnName" onclick="Search('1', document.getElementById('searchDrink').value)">Search by name</button>
             <button id="searchByIngredient" class="btnIngredient" onclick="Search('2', document.getElementById('searchDrink').value)">Search by ingredient</button>
@@ -92,7 +107,7 @@
                     <tr>
                         <th>Image</th>
                         <th>Name</th>
-                        <th>instructions</th>
+                        <th>Instructions</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -135,20 +150,20 @@
                         }
                     });
                 },
-                columnDefs: [
-                    { width: '150px', targets: '_all' } 
-                ],
+
                 columns: [
                     {
                         "data": "strDrinkThumb",
+                        "className": "vertical-align",
                         "responsivePriority": 1,
                         "render": function (data, type, row) {
                             return `<img src="${data}" alt="Drink Thumbnail" style="width: 200px; height: 200px;">`;
                         }
                     },
-                    { "data": "strDrink", "responsivePriority": 1 },
+                    { "data": "strDrink", "className": "vertical-align", "responsivePriority": 1 },
                     {
                         "data": "strInstructions",
+                        "className": "vertical-align",
                         "responsivePriority": 1,
                         "render": function (data, type, row) {
                             return `<div style=" word-wrap: break-word; white-space: normal;">${data}</div>`;
@@ -157,6 +172,7 @@
                     {
                         "data": null,
                         "responsivePriority": 1,
+                        "className": "vertical-align",
                         "render": function (data, type, row) {
                             return `<button class="btnName" onclick="addDrink('${row.idDrink}')">Add</button>`;
                         }
@@ -191,12 +207,12 @@
                 data: JSON.stringify(drink),
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
-                        swal({
-                            title: "Success",
-                            text: "Drink added to your list",
-                            icon: "success",
-                            button: "OK",
-                        });
+                    swal({
+                        title: "Success",
+                        text: "Drink added to your list",
+                        icon: "success",
+                        button: "OK",
+                    });
                 },
                 error: function (xhr, status, error) {
                     console.error("AJAX error:", status, error);
